@@ -10,10 +10,8 @@ import {
 } from "react-bootstrap";
 import ActivityCalendar from "./ActivityCalendar";
 import ActivityForm from "./ActivityForm";
-import KomentarSugestijaModal from "./CommentSuggestionModal";
-import axiosClient from "../../axios/axios-client";
 import CommentSuggestionModal from "./CommentSuggestionModal";
-import Breadcrumbs from "../common/Breadcrumbs";
+import axiosClient from "../../axios/axios-client";
 import ApiCarousel from "../api/ApiCarousel";
 
 export const Activities = () => {
@@ -31,13 +29,18 @@ export const Activities = () => {
   const [drustva, setDrustva] = useState([]);
   const [filterParam, setFilterParam] = useState("");
 
+  const toLocalDateString = (date) =>
+    date.toLocaleDateString("sv-SE"); // YYYY-MM-DD u lokalnom vremenu
+
   const fetchAktivnosti = async (query = "") => {
     try {
       const url = query ? `aktivnosti?${query}` : "aktivnosti";
       const response = await axiosClient.get(url);
       const data = response.data.data;
       setActivityData(data);
-      const datumi = data.map((a) => a.pocetak.split("T")[0]);
+      const datumi = data.map((a) =>
+        toLocalDateString(new Date(a.pocetak))
+      );
       setActivities(datumi);
     } catch (err) {
       console.error("Greška pri dohvatanju aktivnosti", err);
@@ -78,26 +81,18 @@ export const Activities = () => {
     fetchDrustva();
   }, []);
 
-  const nextDay = new Date();
-  nextDay.setDate(nextDay.getDate() + 1);
-  const selectedDateStr = selectedDate.toISOString().split("T")[0];
+  const selectedDateStr = toLocalDateString(selectedDate);
+
   const filteredActivities = activityData.filter((x) => {
-    const activityDate = new Date(x.pocetak).toISOString().split("T")[0];
+    const activityDate = toLocalDateString(new Date(x.pocetak));
     return activityDate === selectedDateStr;
   });
 
   const downloadComment = async (id) => {
     try {
-      const response = await axiosClient.get(`download/${id}`, {
-        responseType: 'blob'  // ⬅⬅⬅ OVO JE NAJVAŽNIJE
-      });
-    //console.log(response);
-    // if (!response.ok) {
-    //   throw new Error('Greška pri preuzimanju dokumenta');
-    // }
-
+      const response = await axiosClient(`download/${id}`);
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = `komentar_${id}.docx`;
       document.body.appendChild(a);
@@ -105,17 +100,16 @@ export const Activities = () => {
       a.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Download greška:', error);
+      console.error("Download greška:", error);
     }
   };
-
 
   const handleCreateActivity = async (formData) => {
     try {
       const response = await axiosClient.post("aktivnosti", formData);
       alert("Aktivnost uspešno kreirana!");
-      setActivityData((prev) => [...prev, response.data.data]);
-      const datumStr = formData.pocetak;
+      setActivityData((prev) => [...prev, response.data.model]);
+      const datumStr = toLocalDateString(new Date(formData.pocetak));
       if (!activities.includes(datumStr)) {
         setActivities((prev) => [...prev, datumStr]);
       }
@@ -134,7 +128,6 @@ export const Activities = () => {
   return (
     <div className="activity-wrapper">
       <Row className="p-4 w-100">
-        {/* <Breadcrumbs/> */}
         <Col md={6} sm={12}>
           <Card>
             <Card.Header>Kalendar aktivnosti</Card.Header>
@@ -153,11 +146,11 @@ export const Activities = () => {
               <ActivityForm onCreate={handleCreateActivity} />
             </Card.Body>
           </Card>
+
           <ApiCarousel />
         </Col>
 
         <Col md={6} sm={12}>
-          {/* Filter bar */}
           <div className="mb-3 border rounded p-3 d-flex flex-wrap gap-3">
             <Form.Select
               value={selectedTip || ""}
@@ -211,24 +204,12 @@ export const Activities = () => {
             <Card key={y} className="mb-3">
               <Card.Header>Detalji aktivnosti</Card.Header>
               <Card.Body>
-                <p>
-                  <strong>Naziv:</strong> {x.naziv}
-                </p>
-                <p>
-                  <strong>Opis:</strong> {x.opis}
-                </p>
-                <p>
-                  <strong>Tip:</strong> {x.tip}
-                </p>
-                <p>
-                  <strong>Početak:</strong> {x.pocetak}
-                </p>
-                <p>
-                  <strong>Kraj:</strong> {x.kraj}
-                </p>
-                <p>
-                  <strong>Status:</strong> {x.status}
-                </p>
+                <p><strong>Naziv:</strong> {x.naziv}</p>
+                <p><strong>Opis:</strong> {x.opis}</p>
+                <p><strong>Tip:</strong> {x.tip}</p>
+                <p><strong>Početak:</strong> {x.pocetak}</p>
+                <p><strong>Kraj:</strong> {x.kraj}</p>
+                <p><strong>Status:</strong> {x.status}</p>
 
                 <hr />
                 <h6>Komentari:</h6>
