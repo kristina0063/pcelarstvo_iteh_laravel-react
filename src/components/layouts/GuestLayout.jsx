@@ -1,5 +1,5 @@
 import React from 'react'
-import { useStateContext } from '../../context/context'
+import { useStateContext } from '../../context/Context'
 import { Navigate, Outlet } from 'react-router-dom';
 
 export default function GuestLayout () {
