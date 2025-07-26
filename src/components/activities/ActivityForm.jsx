@@ -21,6 +21,7 @@ export default function ActivityForm({ onCreate }) {
       try {
         const response = await axiosClient.get("kosnice"); // prilagodi endpoint ako treba
         setKosnice(response.data.data || []);
+        console.log(kosnice);
       } catch (error) {
         console.error("Greška pri učitavanju košnica:", error);
       }
@@ -31,29 +32,17 @@ export default function ActivityForm({ onCreate }) {
 
   useEffect(() => {
     const fetchDrustva = async () => {
-      if (kosnice.length === 0) {
-        setDrustva([]);
-        return;
-      }
-
-      try {
-        const drustvaData = await Promise.all(
-          kosnice.map(async (kosnica) => {
-            const res = await axiosClient.get(`drustva/${kosnica.id}`);
-            return res.data ? [res.data.data] : [];
-          })
-        );
-
-        const flattenDrustva = drustvaData.flat();
-        setDrustva(flattenDrustva);
-      } catch (error) {
-        console.error("Greška pri učitavanju pčelinjih društava:", error);
-        setDrustva([]);
-      }
-    };
+    try {
+      const res = await axiosClient.get("drustva");
+      setDrustva(res.data.data);
+      console.log(res);
+    } catch (err) {
+      console.error("Greška pri dohvatanju društava:", err);
+    }
+  };
 
     fetchDrustva();
-  }, [kosnice]);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -96,6 +85,7 @@ export default function ActivityForm({ onCreate }) {
           onChange={handleChange}
           required
         >
+          <option value="">Odaberite tip</option>
           <option value="SEZONSKA">Sezonska</option>
           <option value="NESEZONSKA">Nesezonska</option>
         </Form.Select>

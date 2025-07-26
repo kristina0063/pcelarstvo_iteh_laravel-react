@@ -3,7 +3,7 @@ import axiosClient from "../../axios/axios-client";
 import Card from "../common/Card";
 import EditBeeColonyModal from "./EditBeeColonyModal";
 import AddBeeColonyModal from "./AddBeeColonyModal";
-import { Button, Form } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 
 export default function BeeColonies() {
   const [colonies, setColonies] = useState([]);
@@ -11,10 +11,11 @@ export default function BeeColonies() {
   const [selectedColony, setSelectedColony] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [beehives, setBeehives] = useState([]);
-  const [selectedBeehiveId, setSelectedBeehiveId] = useState("");
 
-  // Učitaj društva
+  // Paginacija
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   const fetchColonies = async () => {
     setLoading(true);
     try {
@@ -27,20 +28,9 @@ export default function BeeColonies() {
     setLoading(false);
   };
 
-  // Učitaj kosnice
-  const fetchBeehives = async () => {
-    try {
-      const response = await axiosClient.get("kosnice");
-      setBeehives(response.data.data || []);
-    } catch (error) {
-      console.error("Greška pri učitavanju košnica:", error);
-    }
-  };
-
   useEffect(() => {
     fetchColonies();
-    fetchBeehives();
-  }, []);
+  }, [selectedColony]);
 
   const handleEdit = (colony) => {
     setSelectedColony(colony);
@@ -57,6 +47,7 @@ export default function BeeColonies() {
         await axiosClient.delete(`drustva/${colony.id}`);
         alert("Pčelinje društvo uspešno obrisano.");
         fetchColonies();
+        setCurrentPage(1); // Resetuj na prvu stranu
       } catch (error) {
         console.error("Greška pri brisanju društva:", error);
         alert("Došlo je do greške pri brisanju.");
@@ -64,38 +55,21 @@ export default function BeeColonies() {
     }
   };
 
-  const handleSearch = () => {
-    // Ovdje implementiraš filtriranje po selectedBeehiveId
-    console.log("Izabrana košnica ID:", selectedBeehiveId);
-  };
+  // Paginacija - računanje prikazanih kolonija
+  const indexOfLastColony = currentPage * itemsPerPage;
+  const indexOfFirstColony = indexOfLastColony - itemsPerPage;
+  const currentColonies = colonies.slice(indexOfFirstColony, indexOfLastColony);
+  const totalPages = Math.ceil(colonies.length / itemsPerPage);
 
   return (
     <div className="container mt-4">
-      {/* FILTER BAR */}
-      <div className="mb-3 border rounded p-3 d-flex flex-wrap gap-3">
-        <Form.Select
-          value={selectedBeehiveId}
-          onChange={(e) => setSelectedBeehiveId(e.target.value)}
-          style={{ maxWidth: "300px" }}
-        >
-          <option value="">-- Izaberite košnicu --</option>
-          {beehives.map((b) => (
-            <option key={b.id} value={b.id}>
-              {b.oznaka}
-            </option>
-          ))}
-        </Form.Select>
-        <Button variant="primary" onClick={handleSearch} className="ms-auto">
-          Pretraži
-        </Button>
-      </div>
-
       {loading && <p>Učitavanje...</p>}
       {!loading && colonies.length === 0 && (
         <p>Nema dostupnih pčelinjih društava.</p>
       )}
+
       <div>
-        {colonies.map((colony) => (
+        {currentColonies.map((colony) => (
           <Card
             key={colony.id}
             value={`ID: ${colony.id} - Košnica: ${colony.kosnica.oznaka}`}
@@ -104,6 +78,29 @@ export default function BeeColonies() {
           />
         ))}
       </div>
+
+      {/* Paginacija */}
+      {!loading && colonies.length > itemsPerPage && (
+        <div className="mt-3 d-flex justify-content-center gap-2">
+          <Button
+            variant="outline-primary"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => prev - 1)}
+          >
+            Prethodna
+          </Button>
+          <span className="align-self-center">
+            Strana {currentPage} od {totalPages}
+          </span>
+          <Button
+            variant="outline-primary"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+          >
+            Sledeća
+          </Button>
+        </div>
+      )}
 
       <div className="mt-4">
         <Button variant="success" onClick={() => setShowAddModal(true)}>
@@ -118,6 +115,7 @@ export default function BeeColonies() {
           colony={selectedColony}
           onSuccess={() => {
             fetchColonies();
+            setCurrentPage(1); // Reset na prvu stranu nakon izmene
             setShowEditModal(false);
           }}
         />
@@ -128,6 +126,7 @@ export default function BeeColonies() {
         onHide={() => setShowAddModal(false)}
         onSuccess={() => {
           fetchColonies();
+          setCurrentPage(1); // Reset na prvu stranu nakon dodavanja
           setShowAddModal(false);
         }}
       />
