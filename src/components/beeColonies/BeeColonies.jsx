@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axiosClient from "../../axios/axios-client";
-import Card from "../common/Card";
+import axiosClient from "../../../../Beeapp_react-main (1)/Beeapp_react-main/src/axios/axios-client";
+import Card from "../../../../Beeapp_react-main (1)/Beeapp_react-main/src/components/common/Card";
 import EditBeeColonyModal from "./EditBeeColonyModal";
 import AddBeeColonyModal from "./AddBeeColonyModal";
 import { Button } from "react-bootstrap";
@@ -12,7 +12,6 @@ export default function BeeColonies() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
 
-  // Paginacija
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -55,7 +54,6 @@ export default function BeeColonies() {
     }
   };
 
-  // Paginacija - računanje prikazanih kolonija
   const indexOfLastColony = currentPage * itemsPerPage;
   const indexOfFirstColony = indexOfLastColony - itemsPerPage;
   const currentColonies = colonies.slice(indexOfFirstColony, indexOfLastColony);

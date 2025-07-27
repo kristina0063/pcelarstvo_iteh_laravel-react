@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
-import axiosClient from "../../axios/axios-client";
+import axiosClient from "../../../../Beeapp_react-main (1)/Beeapp_react-main/src/axios/axios-client";
 
 const strengthOptions = ["jako", "slabo", "srednje"];
 

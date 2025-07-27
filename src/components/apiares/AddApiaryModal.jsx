@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
-import axiosClient from "../../axios/axios-client";
+import axiosClient from "../../../../Beeapp_react-main (1)/Beeapp_react-main/src/axios/axios-client";
 
 export default function AddApiaryModal({ show, onHide, onSuccess }) {
   const [formData, setFormData] = useState({

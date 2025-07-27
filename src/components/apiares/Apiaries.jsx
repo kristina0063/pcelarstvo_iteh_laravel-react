@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axiosClient from "../../axios/axios-client";
-import Card from "../common/Card";
+import axiosClient from "../../../../Beeapp_react-main (1)/Beeapp_react-main/src/axios/axios-client";
+import Card from "../../../../Beeapp_react-main (1)/Beeapp_react-main/src/components/common/Card";
 import EditApiaryModal from "./EditApiaryModal";
 import { Button, Form } from "react-bootstrap";
 import AddApiaryModal from "./AddApiaryModal";

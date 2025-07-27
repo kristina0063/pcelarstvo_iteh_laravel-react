@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Nav, Button, Collapse } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
 import { useStateContext } from "../../context/Context";
 
 const Sidebar = () => {
   const { user } = useStateContext();
-
+useEffect(() => {console.log(user)}, []);
   return (
     <div className="sidebar_wrapper">
       <div className="w-100 text-center">

@@ -79,7 +79,7 @@ export const Activities = () => {
   useEffect(() => {
     fetchAktivnosti();
     fetchDrustva();
-  }, [activities]);
+  }, []);
 
   const selectedDateStr = toLocalDateString(selectedDate);
 
@@ -262,13 +262,15 @@ export const Activities = () => {
                 </ListGroup>
 
                 <div className="mt-3 d-flex gap-2">
-                  <Button
-                    variant="outline-success"
-                    size="sm"
-                    onClick={() => handleOpenModal("komentar", x.id)}
-                  >
-                    Dodaj komentar
-                  </Button>
+                  {user.role === "pcelar" && (
+                    <Button
+                      variant="outline-success"
+                      size="sm"
+                      onClick={() => handleOpenModal("komentar", x.id)}
+                    >
+                      Dodaj komentar
+                    </Button>
+                  )}
                   <Button
                     variant="outline-primary"
                     size="sm"
